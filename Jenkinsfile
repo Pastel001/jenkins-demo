@@ -14,13 +14,13 @@ node('haimaxy-jnlp') {
     }
     stage('Build') {
         echo "3.Build Docker Image Stage"
-        sh "docker build -t cnych/jenkins-demo:${build_tag} ."
+        sh "docker build -t pastel001/jenkins-demo:${build_tag} ."
     }
     stage('Push') {
         echo "4.Push Docker Image Stage"
         withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
-            sh "docker login -u ${dockerHubUser} -p ${dockerHubPassword}"
-            sh "docker push cnych/jenkins-demo:${build_tag}"
+            sh "docker login -u ${dockerHubUser} -p${dockerHubPassword}"
+            sh "docker push pastel001/jenkins-demo:${build_tag}"
         }
     }
     stage('Deploy') {
@@ -30,6 +30,8 @@ node('haimaxy-jnlp') {
         }
         sh "sed -i 's/<BUILD_TAG>/${build_tag}/' k8s.yaml"
         sh "sed -i 's/<BRANCH_NAME>/${env.BRANCH_NAME}/' k8s.yaml"
+        sh "sed -i 's/default/kube-ops/' k8s.yaml"
+        sh "sed -i 's/cnych/pastel001/' k8s.yaml"
         sh "kubectl apply -f k8s.yaml --record"
     }
 }
